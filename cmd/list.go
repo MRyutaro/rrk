@@ -24,8 +24,9 @@ var listCmd = &cobra.Command{
 		// Get limit from flag
 		limit, _ := cmd.Flags().GetInt("limit")
 		
-		filter := history.EntryFilter{
-			Limit: limit,
+		filter := history.EntryFilter{}
+		if limit > 0 {
+			filter.Limit = limit
 		}
 
 		entries, err := store.Load(filter)
@@ -55,5 +56,5 @@ var listCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(listCmd)
-	listCmd.Flags().IntP("limit", "n", 50, "Limit number of entries to show")
+	listCmd.Flags().IntP("limit", "n", 0, "Limit number of entries to show (0 for all)")
 }
