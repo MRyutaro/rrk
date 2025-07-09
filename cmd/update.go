@@ -94,8 +94,8 @@ func updateRrk() error {
 	// Replace with new binary
 	if err := os.Rename(tmpFile, execPath); err != nil {
 		// Restore backup if replacement fails
-		os.Rename(backupPath, execPath)
-		os.Remove(tmpFile)
+		_ = os.Rename(backupPath, execPath)
+		_ = os.Remove(tmpFile)
 		return fmt.Errorf("failed to replace binary: %v", err)
 	}
 
