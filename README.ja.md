@@ -90,6 +90,13 @@ rrk rerun <HISTORY_ID>
 rrk rerun 1
 ```
 
+### アップデート
+
+```bash
+# 最新版にアップデート
+rrk update
+```
+
 ### バージョン確認
 
 ```bash
@@ -123,9 +130,7 @@ ID  TIME      SESSION        COMMAND
 
 # 特定のコマンドを再実行
 $ rrk rerun 2
-Re-running: git add .
-Original directory: /Users/user/project
-Current directory: /Users/user/project
+git add .
 
 # セッション履歴を確認
 $ rrk session show

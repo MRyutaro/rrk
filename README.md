@@ -95,6 +95,13 @@ rrk rerun <HISTORY_ID>
 rrk rerun 1
 ```
 
+### Update rrk
+
+```bash
+# Update to the latest version
+rrk update
+```
+
 ### Version Information
 
 ```bash
@@ -128,9 +135,7 @@ ID  TIME      SESSION        COMMAND
 
 # Re-execute a specific command
 $ rrk rerun 2
-Re-running: git add .
-Original directory: /Users/user/project
-Current directory: /Users/user/project
+git add .
 
 # Check session history
 $ rrk session show

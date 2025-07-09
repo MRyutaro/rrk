@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/MRyutaro/rrk/internal/updater"
 	"github.com/spf13/cobra"
 )
 
@@ -16,6 +17,12 @@ by session and directory, making past commands easily reusable.`,
 }
 
 func Execute() {
+	// Check for updates before executing any command
+	if updateMsg := updater.CheckForUpdate(Version); updateMsg != "" {
+		fmt.Fprintln(os.Stderr, updateMsg)
+		fmt.Fprintln(os.Stderr)
+	}
+	
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
