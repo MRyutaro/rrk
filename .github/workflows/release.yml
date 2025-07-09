@@ -13,12 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
         go-version: '1.22'
-    
+
     - name: Build binaries
       run: |
         # Linux AMD64
@@ -33,7 +33,7 @@ jobs:
         GOOS=windows GOARCH=amd64 go build -o rrk-windows-amd64.exe
         # Windows ARM64
         GOOS=windows GOARCH=arm64 go build -o rrk-windows-arm64.exe
-    
+
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -44,7 +44,7 @@ jobs:
         release_name: Release ${{ github.ref }}
         draft: false
         prerelease: false
-    
+
     - name: Upload Linux AMD64 Binary
       uses: actions/upload-release-asset@v1
       env:
@@ -54,7 +54,7 @@ jobs:
         asset_path: ./rrk-linux-amd64
         asset_name: rrk-linux-amd64
         asset_content_type: application/octet-stream
-    
+
     - name: Upload Linux ARM64 Binary
       uses: actions/upload-release-asset@v1
       env:
@@ -64,7 +64,7 @@ jobs:
         asset_path: ./rrk-linux-arm64
         asset_name: rrk-linux-arm64
         asset_content_type: application/octet-stream
-    
+
     - name: Upload macOS AMD64 Binary
       uses: actions/upload-release-asset@v1
       env:
@@ -74,7 +74,7 @@ jobs:
         asset_path: ./rrk-darwin-amd64
         asset_name: rrk-darwin-amd64
         asset_content_type: application/octet-stream
-    
+
     - name: Upload macOS ARM64 Binary
       uses: actions/upload-release-asset@v1
       env:
@@ -84,7 +84,7 @@ jobs:
         asset_path: ./rrk-darwin-arm64
         asset_name: rrk-darwin-arm64
         asset_content_type: application/octet-stream
-    
+
     - name: Upload Windows AMD64 Binary
       uses: actions/upload-release-asset@v1
       env:
@@ -94,7 +94,7 @@ jobs:
         asset_path: ./rrk-windows-amd64.exe
         asset_name: rrk-windows-amd64.exe
         asset_content_type: application/octet-stream
-    
+
     - name: Upload Windows ARM64 Binary
       uses: actions/upload-release-asset@v1
       env:
