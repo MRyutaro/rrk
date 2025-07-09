@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"text/tabwriter"
 
 	"github.com/MRyutaro/rrk/internal/history"
@@ -19,8 +20,8 @@ var dirCmd = &cobra.Command{
 }
 
 var dirShowCmd = &cobra.Command{
-	Use:   "show [directory]",
-	Short: "Show history for a directory",
+	Use:   "show [directory|dir-id]",
+	Short: "Show history for a directory (by path or ID from 'rrk d list')",
 	Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		store, err := storage.New()
@@ -31,17 +32,35 @@ var dirShowCmd = &cobra.Command{
 
 		dir := ""
 		if len(args) > 0 {
-			inputDir := args[0]
-			// Handle relative paths like ".."
-			if !filepath.IsAbs(inputDir) {
-				cwd, err := os.Getwd()
+			inputArg := args[0]
+
+			// Check if the argument is a numeric directory ID
+			if dirID, parseErr := strconv.Atoi(inputArg); parseErr == nil {
+				// It's a numeric ID, resolve to directory path
+				directories, err := store.ListDirectories()
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "Error getting current directory: %v\n", err)
+					fmt.Fprintf(os.Stderr, "Error listing directories: %v\n", err)
 					os.Exit(1)
 				}
-				dir = filepath.Clean(filepath.Join(cwd, inputDir))
+
+				if dirID < 0 || dirID >= len(directories) {
+					fmt.Fprintf(os.Stderr, "Invalid directory ID: %d. Use 'rrk d list' to see available IDs.\n", dirID)
+					os.Exit(1)
+				}
+
+				dir = directories[dirID]
 			} else {
-				dir = inputDir
+				// It's a directory path, handle relative paths like ".."
+				if !filepath.IsAbs(inputArg) {
+					cwd, err := os.Getwd()
+					if err != nil {
+						fmt.Fprintf(os.Stderr, "Error getting current directory: %v\n", err)
+						os.Exit(1)
+					}
+					dir = filepath.Clean(filepath.Join(cwd, inputArg))
+				} else {
+					dir = inputArg
+				}
 			}
 		} else {
 			dir, err = os.Getwd()
@@ -103,13 +122,13 @@ var dirListCmd = &cobra.Command{
 		currentDir, _ := os.Getwd()
 
 		w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-		fmt.Fprintln(w, "DIRECTORY\tSTATUS")
-		for _, dir := range directories {
+		fmt.Fprintln(w, "ID\tDIRECTORY\tSTATUS")
+		for i, dir := range directories {
 			status := ""
 			if dir == currentDir {
 				status = "(current)"
 			}
-			fmt.Fprintf(w, "%s\t%s\n", shortPath(dir), status)
+			fmt.Fprintf(w, "%d\t%s\t%s\n", i, shortPath(dir), status)
 		}
 		w.Flush()
 	},
@@ -120,4 +139,3 @@ func init() {
 	dirCmd.AddCommand(dirShowCmd)
 	dirCmd.AddCommand(dirListCmd)
 }
-

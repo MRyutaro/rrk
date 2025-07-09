@@ -15,11 +15,11 @@ var uninstallCmd = &cobra.Command{
 	Long:  `Remove rrk shell integration and optionally delete history data.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Uninstalling rrk...")
-		
+
 		// Get flags
 		removeData, _ := cmd.Flags().GetBool("remove-data")
 		autoConfirm, _ := cmd.Flags().GetBool("yes")
-		
+
 		// Get confirmation unless --yes flag is used
 		if !autoConfirm {
 			fmt.Print("This will remove rrk shell integration. Continue? [y/N]: ")
@@ -34,7 +34,7 @@ var uninstallCmd = &cobra.Command{
 				return
 			}
 		}
-		
+
 		// Detect shell
 		shell := detectShell()
 		if shell == "" {
@@ -47,7 +47,7 @@ var uninstallCmd = &cobra.Command{
 				fmt.Printf("✅ Removed shell integration from ~/.%src\n", shell)
 			}
 		}
-		
+
 		// Remove hook file
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
@@ -60,7 +60,7 @@ var uninstallCmd = &cobra.Command{
 				fmt.Println("✅ Removed hook script")
 			}
 		}
-		
+
 		// Optionally remove data
 		if removeData {
 			if !autoConfirm {
@@ -76,7 +76,7 @@ var uninstallCmd = &cobra.Command{
 					goto skipDataRemoval
 				}
 			}
-			
+
 			if homeDir != "" {
 				rrkDir := filepath.Join(homeDir, "rrk")
 				if err := os.RemoveAll(rrkDir); err != nil {
@@ -88,15 +88,15 @@ var uninstallCmd = &cobra.Command{
 		} else {
 			fmt.Println("💾 History data preserved in ~/rrk/")
 		}
-		
-		skipDataRemoval:
-		
+
+	skipDataRemoval:
+
 		// Instructions for removing binary
 		fmt.Println("\n📦 To complete uninstallation, remove the rrk binary:")
 		fmt.Println("  sudo rm /usr/local/bin/rrk")
 		fmt.Println("  # or")
 		fmt.Println("  rm ~/.local/bin/rrk")
-		
+
 		fmt.Println("\n✨ Uninstall completed!")
 		fmt.Println("Please restart your shell or run 'source ~/.zshrc' (or ~/.bashrc)")
 	},
@@ -107,7 +107,7 @@ func removeShellIntegration(shell string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	var configFile string
 	switch shell {
 	case "bash":
@@ -117,40 +117,40 @@ func removeShellIntegration(shell string) error {
 	default:
 		return fmt.Errorf("unsupported shell: %s", shell)
 	}
-	
+
 	// Read current config
 	content, err := os.ReadFile(configFile)
 	if err != nil {
 		return err
 	}
-	
+
 	// Remove rrk integration lines
 	lines := strings.Split(string(content), "\n")
 	var newLines []string
 	skipNext := false
-	
+
 	for i, line := range lines {
 		trimmed := strings.TrimSpace(line)
-		
+
 		// Skip rrk-related lines
 		if strings.Contains(trimmed, "rrk shell integration") ||
-		   strings.Contains(trimmed, "rrk hook init") ||
-		   (strings.HasPrefix(trimmed, "source") && strings.Contains(trimmed, "rrk/hook.sh")) {
+			strings.Contains(trimmed, "rrk hook init") ||
+			(strings.HasPrefix(trimmed, "source") && strings.Contains(trimmed, "rrk/hook.sh")) {
 			// Also skip the next line if it's just a comment
 			if i+1 < len(lines) && strings.TrimSpace(lines[i+1]) == "" {
 				skipNext = true
 			}
 			continue
 		}
-		
+
 		if skipNext {
 			skipNext = false
 			continue
 		}
-		
+
 		newLines = append(newLines, line)
 	}
-	
+
 	// Write back the cleaned config
 	newContent := strings.Join(newLines, "\n")
 	return os.WriteFile(configFile, []byte(newContent), 0644)

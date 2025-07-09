@@ -23,7 +23,7 @@ var listCmd = &cobra.Command{
 
 		// Get limit from flag
 		limit, _ := cmd.Flags().GetInt("limit")
-		
+
 		filter := history.EntryFilter{}
 		if limit > 0 {
 			filter.Limit = limit
