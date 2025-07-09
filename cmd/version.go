@@ -26,27 +26,27 @@ func GetLatestVersion() (string, error) {
 	client := &http.Client{
 		Timeout: 5 * time.Second,
 	}
-	
+
 	resp, err := client.Get("https://api.github.com/repos/MRyutaro/rrk/releases/latest")
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
-	
+
 	if resp.StatusCode != 200 {
 		return "", fmt.Errorf("GitHub API returned status %d", resp.StatusCode)
 	}
-	
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
-	
+
 	var release GitHubRelease
 	if err := json.Unmarshal(body, &release); err != nil {
 		return "", err
 	}
-	
+
 	return release.TagName, nil
 }
 
@@ -59,6 +59,6 @@ func GetVersionInfo() string {
 		}
 		return fmt.Sprintf("rrk %s (development build)", Version)
 	}
-	
+
 	return fmt.Sprintf("rrk %s", Version)
 }

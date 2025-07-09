@@ -110,7 +110,7 @@ func updateRrk() error {
 
 	fmt.Println("✅ rrk has been successfully updated!")
 	fmt.Printf("Updated binary location: %s\n", execPath)
-	
+
 	// Show new version
 	versionCmd := exec.Command(execPath, "--version")
 	versionCmd.Stdout = os.Stdout

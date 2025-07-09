@@ -33,7 +33,7 @@ func CheckForUpdate(currentVersion string) string {
 	}
 
 	cache := loadCache()
-	
+
 	// Check if we need to fetch latest version
 	if time.Since(cache.LastCheck) > checkInterval {
 		latest := fetchLatestVersion()
