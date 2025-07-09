@@ -2,7 +2,7 @@
 set -e
 
 REPO="MRyutaro/rrk"
-INSTALL_DIR="${INSTALL_DIR:-/usr/local/bin}"
+INSTALL_DIR="${INSTALL_DIR:-$HOME/.local/bin}"
 BINARY_NAME="rrk"
 
 # Detect OS and architecture
@@ -55,13 +55,22 @@ fi
 # Make executable
 chmod +x "/tmp/${BINARY_NAME}"
 
-# Install (may require sudo)
-if [ -w "$INSTALL_DIR" ]; then
-    mv "/tmp/${BINARY_NAME}" "${INSTALL_DIR}/${BINARY_NAME}"
-else
-    echo "Installing to ${INSTALL_DIR} (requires sudo)..."
-    sudo mv "/tmp/${BINARY_NAME}" "${INSTALL_DIR}/${BINARY_NAME}"
-fi
+# Create install directory if it doesn't exist
+mkdir -p "$INSTALL_DIR"
+
+# Install without sudo
+mv "/tmp/${BINARY_NAME}" "${INSTALL_DIR}/${BINARY_NAME}"
 
 echo "rrk has been installed to ${INSTALL_DIR}/${BINARY_NAME}"
+
+# Add to PATH if not already present
+case ":$PATH:" in
+    *:"$INSTALL_DIR":*)
+        ;;
+    *)
+        echo "To use 'rrk', add '${INSTALL_DIR}' to your PATH:"
+        echo "  export PATH=\"\$PATH:${INSTALL_DIR}\""
+        ;;
+esac
+
 echo "Run 'rrk' to get started!"
