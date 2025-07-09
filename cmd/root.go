@@ -12,7 +12,7 @@ var rootCmd = &cobra.Command{
 	Short: "A shell history management tool",
 	Long: `rrk (rireki) is a Go-based CLI tool that manages shell history
 by session and directory, making past commands easily reusable.`,
-	Version: "0.1.0",
+	Version: GetVersionInfo(),
 }
 
 func Execute() {

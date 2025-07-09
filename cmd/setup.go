@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -11,7 +12,7 @@ import (
 var setupCmd = &cobra.Command{
 	Use:   "setup",
 	Short: "Setup shell integration",
-	Long:  `Interactive setup to configure shell integration for automatic history recording.`,
+	Long:  `Automatic setup to configure shell integration for history recording.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Setting up rrk shell integration...")
 		
@@ -24,7 +25,19 @@ var setupCmd = &cobra.Command{
 		
 		fmt.Printf("Detected shell: %s\n", shell)
 		
-		// Generate hook script
+		// Get confirmation unless --yes flag is used
+		autoConfirm, _ := cmd.Flags().GetBool("yes")
+		if !autoConfirm {
+			fmt.Printf("This will add rrk integration to your ~/.%src file. Continue? [y/N]: ", shell)
+			var response string
+			fmt.Scanln(&response)
+			if response != "y" && response != "Y" && response != "yes" {
+				fmt.Println("Setup cancelled.")
+				return
+			}
+		}
+		
+		// Get hook script
 		hookScript := ""
 		switch shell {
 		case "bash":
@@ -36,13 +49,29 @@ var setupCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		
-		// Write to config file
+		// Get home directory
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error getting home directory: %v\n", err)
 			os.Exit(1)
 		}
 		
+		// Shell config file path
+		var shellConfigFile string
+		switch shell {
+		case "bash":
+			shellConfigFile = filepath.Join(homeDir, ".bashrc")
+		case "zsh":
+			shellConfigFile = filepath.Join(homeDir, ".zshrc")
+		}
+		
+		// Check if rrk is already configured
+		if isAlreadyConfigured(shellConfigFile) {
+			fmt.Println("rrk integration is already configured!")
+			return
+		}
+		
+		// Write hook script to config directory
 		configDir := filepath.Join(homeDir, "rrk")
 		if err := os.MkdirAll(configDir, 0755); err != nil {
 			fmt.Fprintf(os.Stderr, "Error creating config directory: %v\n", err)
@@ -55,20 +84,25 @@ var setupCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		
-		// Instructions
-		fmt.Printf("\nSetup complete! To enable rrk integration, add the following to your shell config:\n\n")
+		// Add to shell config
+		hookLine := fmt.Sprintf("\\n# rrk shell integration\\nsource %s\\n", hookFile)
 		
-		switch shell {
-		case "bash":
-			fmt.Printf("echo 'source %s' >> ~/.bashrc\n", hookFile)
-			fmt.Printf("source ~/.bashrc\n")
-		case "zsh":
-			fmt.Printf("echo 'source %s' >> ~/.zshrc\n", hookFile)
-			fmt.Printf("source ~/.zshrc\n")
+		file, err := os.OpenFile(shellConfigFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error opening shell config file: %v\n", err)
+			os.Exit(1)
+		}
+		defer file.Close()
+		
+		if _, err := file.WriteString(hookLine); err != nil {
+			fmt.Fprintf(os.Stderr, "Error writing to shell config file: %v\n", err)
+			os.Exit(1)
 		}
 		
-		fmt.Println("\nOr run this command to add it automatically:")
-		fmt.Printf("rrk hook init %s >> ~/.%src && source ~/.%src\n", shell, shell, shell)
+		fmt.Println("✅ Setup complete!")
+		fmt.Printf("rrk integration has been added to %s\n", shellConfigFile)
+		fmt.Println("\\nTo start using rrk, restart your shell or run:")
+		fmt.Printf("source %s\n", shellConfigFile)
 	},
 }
 
@@ -90,4 +124,18 @@ func detectShell() string {
 
 func init() {
 	rootCmd.AddCommand(setupCmd)
+	setupCmd.Flags().BoolP("yes", "y", false, "Automatically confirm setup without prompting")
+}
+
+// isAlreadyConfigured checks if rrk integration is already configured
+func isAlreadyConfigured(configFile string) bool {
+	content, err := os.ReadFile(configFile)
+	if err != nil {
+		return false
+	}
+	
+	// Check for rrk integration markers
+	configStr := string(content)
+	return strings.Contains(configStr, "rrk shell integration") || 
+		   strings.Contains(configStr, "rrk hook init")
 }

@@ -10,14 +10,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var cwdCmd = &cobra.Command{
-	Use:     "cwd",
+var dirCmd = &cobra.Command{
+	Use:     "dir",
 	Aliases: []string{"d"},
 	Short:   "Manage directory-based history",
 	Long:    `List and show shell history for specific directories.`,
 }
 
-var cwdShowCmd = &cobra.Command{
+var dirShowCmd = &cobra.Command{
 	Use:   "show [directory]",
 	Short: "Show history for a directory",
 	Args:  cobra.MaximumNArgs(1),
@@ -67,7 +67,7 @@ var cwdShowCmd = &cobra.Command{
 	},
 }
 
-var cwdListCmd = &cobra.Command{
+var dirListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List directories with history",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -104,8 +104,8 @@ var cwdListCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(cwdCmd)
-	cwdCmd.AddCommand(cwdShowCmd)
-	cwdCmd.AddCommand(cwdListCmd)
+	rootCmd.AddCommand(dirCmd)
+	dirCmd.AddCommand(dirShowCmd)
+	dirCmd.AddCommand(dirListCmd)
 }
 
