@@ -3,42 +3,49 @@ name: solve-issues
 description: GithubのIssueを解消します．
 ---
 
+#!/bin/bash
 set -e
 
+# Gitリポジトリのルートディレクトリを取得
 REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 if [ -z "$REPO_ROOT" ]; then
     echo "❌ Error: Not in a git repository"
     exit 1
 fi
 
+# fzfがインストールされているか確認
+if ! command -v fzf &>/dev/null; then
+    echo "❌ Error: 'fzf' is required but not installed. Install it with 'brew install fzf' or similar."
+    exit 1
+fi
+
 echo "🔍 Fetching open issues..."
 echo ""
 
-# オープンなIssueを取得して表示
-ISSUES=$(gh issue list --state open --limit 20 --json number,title,labels)
-if [ "$(echo "$ISSUES" | jq length)" -eq 0 ]; then
+# オープンなIssueを取得
+ISSUES_JSON=$(gh issue list --state open --limit 20 --json number,title,labels)
+if [ "$(echo "$ISSUES_JSON" | jq length)" -eq 0 ]; then
     echo "No open issues found."
     exit 0
 fi
 
-echo "📋 Open Issues:"
-echo "$ISSUES" | jq -r '.[] | "#\(.number) \(.title)"' | nl -v0 -s". "
-echo ""
-
-# ユーザーにIssue選択を促す
-while true; do
-    read -p "🎯 Enter issue number to solve: #" ISSUE_NUMBER
-    if [[ "$ISSUE_NUMBER" =~ ^[0-9]+$ ]]; then
-        # Issue番号が存在するかチェック
-        if echo "$ISSUES" | jq -e ".[] | select(.number == $ISSUE_NUMBER)" > /dev/null; then
-            break
-        else
-            echo "❌ Issue #$ISSUE_NUMBER not found in the list above."
-        fi
-    else
-        echo "❌ Please enter a valid issue number."
+# コマンドライン引数からIssue番号を取得
+if [[ "$1" =~ ^#?[0-9]+$ ]]; then
+    ISSUE_NUMBER="${1#\#}"
+    # 指定されたIssue番号が存在するか確認
+    if ! echo "$ISSUES_JSON" | jq -e ".[] | select(.number == $ISSUE_NUMBER)" > /dev/null; then
+        echo "❌ Issue #$ISSUE_NUMBER not found in the list above."
+        exit 1
     fi
-done
+else
+    # fzfでIssueを選択
+    SELECTED=$(echo "$ISSUES_JSON" | jq -r '.[] | "\(.number): \(.title)"' | fzf --prompt "🎯 Select an issue to solve: ")
+    if [ -z "$SELECTED" ]; then
+        echo "❌ No issue selected."
+        exit 1
+    fi
+    ISSUE_NUMBER=$(echo "$SELECTED" | cut -d':' -f1 | tr -d ' ')
+fi
 
 # Issueの詳細を取得
 echo ""
@@ -65,6 +72,9 @@ else
 fi
 echo ""
 
+# プロジェクト名を取得
+PROJECT_NAME=$(basename "$REPO_ROOT")
+
 # Claude AIにIssue解決を依頼
 echo "🤖 Preparing context for Claude AI..."
 CLAUDE_PROMPT="# 🎯 Issue #$ISSUE_NUMBER: $ISSUE_TITLE
@@ -76,23 +86,23 @@ $ISSUE_BODY
 $LABELS
 
 ## 📁 Project Context
-This is the 'rrk' project - a Go-based CLI tool for enhanced shell history management.
+This is the '$PROJECT_NAME' project.
 
 ### Project Structure:
 \`\`\`
-$(cd "$REPO_ROOT" && find . -type f -name "*.go" -o -name "*.md" -o -name "Makefile" -o -name "go.mod" | head -20)
+$(cd "$REPO_ROOT" && find . -type f \( -name "*.go" -o -name "*.py" -o -name "*.js" -o -name "*.ts" -o -name "*.md" -o -name "Makefile" -o -name "go.mod" -o -name "package.json" \) | head -20)
 \`\`\`
 
 ## 🎯 Task
 Please analyze this issue and provide a complete solution that:
-1. ✅ Follows Go best practices and project conventions
+1. ✅ Follows best practices and project conventions
 2. 🧪 Includes tests if needed
 3. 📚 Updates documentation if necessary
 4. 🔧 Implements the requested feature/fix
 
 After implementation:
-- I'll run tests with \`make test\`
-- I'll run linting with \`make lint\`
+- I'll run tests with \`make test\` or equivalent
+- I'll run linting with \`make lint\` or equivalent
 - I'll commit and create a PR
 
 Let's solve this issue step by step!"
