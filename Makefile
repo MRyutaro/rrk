@@ -11,15 +11,15 @@ clean:
 
 patch:
 	@./scripts/bump-version.sh patch
-	@git push origin $$(git describe --tags --abbrev=0)
+	@git push --follow-tags
 
 minor:
 	@./scripts/bump-version.sh minor
-	@git push origin $$(git describe --tags --abbrev=0)
+	@git push --follow-tags
 
 major:
 	@./scripts/bump-version.sh major
-	@git push origin $$(git describe --tags --abbrev=0)
+	@git push --follow-tags
 
 version:
 	@git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0"
