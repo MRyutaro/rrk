@@ -34,10 +34,6 @@ var rerunCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Printf("Re-running: %s\n", entry.Command)
-		fmt.Printf("Original directory: %s\n", entry.CWD)
-		fmt.Printf("Current directory: %s\n", getCurrentDir())
-
 		// Change to the original directory and execute the command
 		shellCmd := fmt.Sprintf("cd %s && %s", shellescape(entry.CWD), entry.Command)
 		execCmd := exec.Command("sh", "-c", shellCmd)
