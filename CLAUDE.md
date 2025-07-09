@@ -8,42 +8,23 @@
 
 ## よく使う開発コマンド
 
-これは新しいGoプロジェクトで、まだ確立されたビルドスクリプトがないため、使用される可能性の高い標準的なGoコマンドを以下に示します：
-
-```bash
-# Goモジュールの初期化（まだの場合）
-go mod init github.com/[username]/rrk
-
-# アプリケーションの実行
-go run .
-
-# アプリケーションのビルド
-go build -o rrk
-
-# テストの実行
-go test ./...
-
-# カバレッジ付きテストの実行
-go test -cover ./...
-
-# コードのフォーマット
-go fmt ./...
-
-# コードのリント（golangci-lintが必要）
-golangci-lint run
-
-# 依存関係のベンダリング
-go mod vendor
-
-# 依存関係のクリーンアップ
-go mod tidy
-```
+[`docs/DEVELOPERS.md`](./docs/DEVELOPERS.md) を参照してください。
 
 ## プロジェクト構造
 
-これは新しいプロジェクトなので、典型的なGoプロジェクトの構造は以下のようになります：
-- `main.go` - エントリーポイント
-- `cmd/` - CLIツールを構築する場合のコマンド固有のコード
-- `internal/` - プライベートなアプリケーションコード
-- `pkg/` - パブリックライブラリ
-- `test/` - 追加のテストファイル
+```
+rrk/
+├── main.go              # エントリーポイント
+├── go.mod              # Goモジュール定義
+├── Makefile            # ビルド・リリース用コマンド
+├── scripts/            # ユーティリティスクリプト
+│   └── bump-version.sh # バージョン管理スクリプト
+├── docs/               # ドキュメント
+│   ├── DEVELOPERS.md   # 開発者向けドキュメント
+│   └── REQ.md         # 要件定義
+├── .github/            # GitHub Actions設定
+│   └── workflows/
+│       ├── build.yml   # CI/CDビルド
+│       └── release.yml # リリース自動化
+└── CLAUDE.md          # このファイル
+```
