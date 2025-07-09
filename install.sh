@@ -97,19 +97,14 @@ echo ""
 echo "🔧 Setting up shell integration..."
 if [ "$SHELL_NAME" != "unknown" ]; then
     echo "Detected shell: $SHELL_NAME"
-    printf "Would you like to set up rrk shell integration now? [Y/n]: "
-    read -r response
-    if [ "$response" = "" ] || [ "$response" = "y" ] || [ "$response" = "Y" ] || [ "$response" = "yes" ]; then
-        if "${INSTALL_DIR}/${BINARY_NAME}" setup -y 2>/dev/null; then
-            echo "✅ Shell integration setup complete!"
-            echo ""
-            echo "🎉 Installation complete!"
-            echo "Please restart your shell or run: source $SHELL_CONFIG_FILE"
-        else
-            echo "⚠️  Shell integration setup failed. You can set it up later with: rrk setup"
-        fi
+    echo "Setting up rrk shell integration..."
+    if "${INSTALL_DIR}/${BINARY_NAME}" setup -y 2>/dev/null; then
+        echo "✅ Shell integration setup complete!"
+        echo ""
+        echo "🎉 Installation complete!"
+        echo "Please restart your shell or run: source $SHELL_CONFIG_FILE"
     else
-        echo "You can set up shell integration later with: rrk setup"
+        echo "⚠️  Shell integration setup failed. You can set it up later with: rrk setup"
     fi
 else
     echo "Could not detect shell. You can set up shell integration later with: rrk setup"
