@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"text/tabwriter"
 
 	"github.com/MRyutaro/rrk/internal/history"
@@ -30,7 +31,18 @@ var dirShowCmd = &cobra.Command{
 
 		dir := ""
 		if len(args) > 0 {
-			dir = args[0]
+			inputDir := args[0]
+			// Handle relative paths like ".."
+			if !filepath.IsAbs(inputDir) {
+				cwd, err := os.Getwd()
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error getting current directory: %v\n", err)
+					os.Exit(1)
+				}
+				dir = filepath.Clean(filepath.Join(cwd, inputDir))
+			} else {
+				dir = inputDir
+			}
 		} else {
 			dir, err = os.Getwd()
 			if err != nil {
