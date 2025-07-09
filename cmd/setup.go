@@ -30,7 +30,11 @@ var setupCmd = &cobra.Command{
 		if !autoConfirm {
 			fmt.Printf("This will add rrk integration to your ~/.%src file. Continue? [y/N]: ", shell)
 			var response string
-			fmt.Scanln(&response)
+			if _, err := fmt.Scanln(&response); err != nil {
+				// Treat scan error as "no" response
+				fmt.Println("Setup cancelled.")
+				return
+			}
 			if response != "y" && response != "Y" && response != "yes" {
 				fmt.Println("Setup cancelled.")
 				return

@@ -24,7 +24,11 @@ var uninstallCmd = &cobra.Command{
 		if !autoConfirm {
 			fmt.Print("This will remove rrk shell integration. Continue? [y/N]: ")
 			var response string
-			fmt.Scanln(&response)
+			if _, err := fmt.Scanln(&response); err != nil {
+				// Treat scan error as "no" response
+				fmt.Println("Uninstall cancelled.")
+				return
+			}
 			if response != "y" && response != "Y" && response != "yes" {
 				fmt.Println("Uninstall cancelled.")
 				return
@@ -62,7 +66,11 @@ var uninstallCmd = &cobra.Command{
 			if !autoConfirm {
 				fmt.Print("This will permanently delete all rrk history data. Continue? [y/N]: ")
 				var response string
-				fmt.Scanln(&response)
+				if _, err := fmt.Scanln(&response); err != nil {
+					// Treat scan error as "no" response
+					fmt.Println("Data removal cancelled.")
+					goto skipDataRemoval
+				}
 				if response != "y" && response != "Y" && response != "yes" {
 					fmt.Println("Data removal cancelled.")
 					goto skipDataRemoval
