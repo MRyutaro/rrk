@@ -92,7 +92,7 @@ func loadCache() VersionCache {
 	}
 
 	var cache VersionCache
-	json.Unmarshal(data, &cache)
+	_ = json.Unmarshal(data, &cache)
 	return cache
 }
 
@@ -103,12 +103,12 @@ func saveCache(cache VersionCache) {
 	}
 
 	// Create directory if it doesn't exist
-	os.MkdirAll(filepath.Dir(cachePath), 0755)
+	_ = os.MkdirAll(filepath.Dir(cachePath), 0755)
 
 	data, err := json.Marshal(cache)
 	if err != nil {
 		return
 	}
 
-	os.WriteFile(cachePath, data, 0644)
+	_ = os.WriteFile(cachePath, data, 0644)
 }

@@ -100,7 +100,7 @@ func updateRrk() error {
 	}
 
 	// Remove backup
-	os.Remove(backupPath)
+	_ = os.Remove(backupPath)
 
 	// Verify the new binary works
 	cmd := exec.Command(execPath, "--version")
@@ -114,7 +114,7 @@ func updateRrk() error {
 	// Show new version
 	versionCmd := exec.Command(execPath, "--version")
 	versionCmd.Stdout = os.Stdout
-	versionCmd.Run()
+	_ = versionCmd.Run()
 
 	return nil
 }

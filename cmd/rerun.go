@@ -52,15 +52,6 @@ func init() {
 	rootCmd.AddCommand(rerunCmd)
 }
 
-// getCurrentDir returns the current working directory
-func getCurrentDir() string {
-	dir, err := os.Getwd()
-	if err != nil {
-		return "unknown"
-	}
-	return dir
-}
-
 // shellescape escapes a string for safe use in shell commands
 func shellescape(s string) string {
 	// Simple escaping - wrap in single quotes and escape any single quotes
