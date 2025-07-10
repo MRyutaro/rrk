@@ -105,7 +105,7 @@ var setupCmd = &cobra.Command{
 
 		fmt.Println("✅ Setup complete!")
 		fmt.Printf("rrk integration has been added to %s\n", shellConfigFile)
-		fmt.Println("\\nTo start using rrk, restart your shell or run:")
+		fmt.Println("\nTo start using rrk, restart your shell or run:")
 		fmt.Printf("source %s\n", shellConfigFile)
 	},
 }

@@ -19,6 +19,12 @@
 curl -LsSf https://raw.githubusercontent.com/MRyutaro/rrk/main/install.sh | sh
 ```
 
+このスクリプトは以下を自動的に実行します：
+- システムに適したバイナリをダウンロード
+- `~/.local/bin`（または`$INSTALL_DIR`）にインストール
+- シェル統合（bash/zsh）を自動設定
+- 必要に応じてインストールディレクトリをPATHに追加
+
 ### ソースからビルド
 
 ```bash
@@ -26,18 +32,9 @@ git clone https://github.com/MRyutaro/rrk.git
 cd rrk
 make build
 sudo mv rrk /usr/local/bin/
-```
 
-## セットアップ
-
-インストール後、シェル統合を有効にします：
-
-```bash
-# 自動セットアップ（推奨）
+# ソースからビルドした後は、シェル統合を設定：
 rrk setup
-
-# 自動確認でセットアップ
-rrk setup -y
 ```
 
 ## 使い方
@@ -76,8 +73,12 @@ rrk d show
 # 特定のディレクトリの履歴を表示
 rrk dir show /path/to/directory
 
-# 履歴があるディレクトリ一覧
+# 履歴があるディレクトリ一覧（番号付きID表示）
 rrk dir list
+
+# IDでディレクトリ履歴を表示
+rrk dir show <ID>
+rrk d show <ID>
 ```
 
 ### コマンド再実行
@@ -104,6 +105,8 @@ rrk update
 rrk -v
 rrk --version
 ```
+
+> **注意**: バージョン比較は開発ビルドを正しく処理し、`rrk update`実行後は更新通知が自動的にクリアされます。
 
 ### アンインストール
 
@@ -147,6 +150,18 @@ ID  TIME      DIRECTORY       SESSION        COMMAND
 2   14:30:45  ~/project       abc123...      git add .
 3   14:31:02  ~/project       abc123...      git commit -m "fix bug"
 4   14:32:15  ~/documents     def456...      vim README.md
+
+# ディレクトリ一覧をIDで表示
+$ rrk dir list
+ID  DIRECTORY        STATUS
+0   ~/project        (current)
+1   ~/documents
+2   /tmp
+
+# ディレクトリIDで履歴を表示
+$ rrk dir show 1
+ID  TIME      SESSION        COMMAND
+4   14:32:15  def456...      vim README.md
 ```
 
 ## データ保存
@@ -158,6 +173,11 @@ ID  TIME      DIRECTORY       SESSION        COMMAND
 ## 開発者向け
 
 詳細は [`docs/DEVELOPERS.md`](./docs/DEVELOPERS.md) を参照してください。
+
+### コントリビューション
+
+- `main`ブランチへのプルリクエストのマージは自動的にパッチバージョンリリースをトリガーします
+- CI/CDパイプラインがバージョン管理とGitHubリリースを自動で処理します
 
 ## ライセンス
 

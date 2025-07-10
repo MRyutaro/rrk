@@ -24,6 +24,12 @@
 curl -LsSf https://raw.githubusercontent.com/MRyutaro/rrk/main/install.sh | sh
 ```
 
+This script will:
+- Download the appropriate binary for your system
+- Install it to `~/.local/bin` (or `$INSTALL_DIR` if set)
+- Automatically set up shell integration (bash/zsh)
+- Add the installation directory to your PATH if needed
+
 ### Build from Source
 
 ```bash
@@ -31,18 +37,9 @@ git clone https://github.com/MRyutaro/rrk.git
 cd rrk
 make build
 sudo mv rrk /usr/local/bin/
-```
 
-## Setup
-
-After installation, enable shell integration:
-
-```bash
-# Automatic setup (recommended)
+# After building from source, set up shell integration:
 rrk setup
-
-# Auto-confirm setup
-rrk setup -y
 ```
 
 ## Usage
@@ -81,8 +78,12 @@ rrk d show
 # Show specific directory history
 rrk dir show /path/to/directory
 
-# List directories with history
+# List directories with history (with numeric IDs)
 rrk dir list
+
+# Show directory history by ID
+rrk dir show <ID>
+rrk d show <ID>
 ```
 
 ### Command Re-execution
@@ -109,6 +110,8 @@ rrk update
 rrk -v
 rrk --version
 ```
+
+> **Note**: Version comparison correctly handles development builds and update notifications are automatically cleared after running `rrk update`.
 
 ### Uninstall
 
@@ -152,6 +155,18 @@ ID  TIME      DIRECTORY       SESSION        COMMAND
 2   14:30:45  ~/project       abc123...      git add .
 3   14:31:02  ~/project       abc123...      git commit -m "fix bug"
 4   14:32:15  ~/documents     def456...      vim README.md
+
+# List directories with IDs
+$ rrk dir list
+ID  DIRECTORY        STATUS
+0   ~/project        (current)
+1   ~/documents
+2   /tmp
+
+# Show history by directory ID
+$ rrk dir show 1
+ID  TIME      SESSION        COMMAND
+4   14:32:15  def456...      vim README.md
 ```
 
 ## Data Storage
@@ -163,6 +178,11 @@ ID  TIME      DIRECTORY       SESSION        COMMAND
 ## For Developers
 
 See [`docs/DEVELOPERS.md`](./docs/DEVELOPERS.md) for detailed information.
+
+### Contributing
+
+- Pull requests merged to the `main` branch automatically trigger a patch version release
+- The CI/CD pipeline handles version bumping and GitHub releases automatically
 
 ## License
 
