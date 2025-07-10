@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"runtime"
 
+	"github.com/MRyutaro/rrk/internal/updater"
 	"github.com/spf13/cobra"
 )
 
@@ -110,6 +111,9 @@ func updateRrk() error {
 
 	fmt.Println("✅ rrk has been successfully updated!")
 	fmt.Printf("Updated binary location: %s\n", execPath)
+
+	// Clear version cache to avoid showing update messages for the new version
+	updater.ClearCache()
 
 	// Show new version
 	versionCmd := exec.Command(execPath, "--version")
