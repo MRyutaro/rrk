@@ -89,7 +89,7 @@ var setupCmd = &cobra.Command{
 		}
 
 		// Add to shell config
-		hookLine := fmt.Sprintf("\\n# rrk shell integration\\nsource %s\\n", hookFile)
+		hookLine := fmt.Sprintf("\n# rrk shell integration\nsource %s\n", hookFile)
 
 		file, err := os.OpenFile(shellConfigFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
