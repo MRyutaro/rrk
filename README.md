@@ -3,15 +3,15 @@
 [![GitHub release](https://img.shields.io/github/release/MRyutaro/rrk.svg)](https://github.com/MRyutaro/rrk/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**rrk** (rireki) is a Go-based single-binary CLI tool that manages bash/zsh shell history by **session** and **directory**, enabling logical grouping and easy re-execution of past commands.
+**rrk** (rireki) is a Go-based single-binary CLI tool that displays shell history in directory tree format, making it easy to see which commands were executed in each directory.
 
 > 📖 **日本語ドキュメント** - [README.ja.md](./README.ja.md)
 
 ## Features
 
-- 📁 **Directory-based** history management
-- 🪟 **Session-based** history management  
-- 🔄 **One-command re-execution** - `rrk rerun <ID>`
+- 🌳 **Tree visualization** - Display command history in directory tree format
+- 📁 **Directory-based** organization - See which commands were run in each directory
+- 🎯 **Focused view** - View history for specific directories
 - 🚀 **Single binary** - no dependencies
 - 💾 **Lightweight** - file-based storage, no database required
 - 🐚 **Shell integration** - supports bash/zsh with automatic setup
@@ -46,58 +46,17 @@ rrk setup
 
 ## Usage
 
-### List All History
+### Tree Visualization
 
 ```bash
-# Show all command history
-rrk list
+# Display all command history in tree format
+rrk
 
-# Show latest 20 entries only
-rrk list -n 20
-```
+# Display history for a specific directory
+rrk /path/to/directory
 
-### Session Management
-
-```bash
-# List all sessions
-rrk session list
-rrk s list
-
-# Show current session history
-rrk session show
-rrk s show
-
-# Show specific session history
-rrk session show <SESSION_ID>
-```
-
-### Directory Management
-
-```bash
-# Show current directory history
-rrk dir show
-rrk d show
-
-# Show specific directory history
-rrk dir show /path/to/directory
-
-# List directories with history (with numeric IDs)
-rrk dir list
-rrk d list
-
-# Show directory history by ID
-rrk dir show <ID>
-rrk d show <ID>
-```
-
-### Command Re-execution
-
-```bash
-# Re-execute command by history ID
-rrk rerun <HISTORY_ID>
-
-# Example: re-execute command with ID=1
-rrk rerun 1
+# Limit the number of commands shown per directory
+rrk -n 5
 ```
 
 ### Update rrk
@@ -140,44 +99,39 @@ The uninstall command will:
 ## Example Usage
 
 ```bash
-# Check current directory history
-$ rrk dir show
-ID  TIME      SESSION        COMMAND
-1   14:30:12  abc123...      git status
-2   14:30:45  abc123...      git add .
-3   14:31:02  abc123...      git commit -m "fix bug"
+# Display command history in tree format
+$ rrk
+/home/user
+├── project/
+│   ├── git status
+│   ├── git add .
+│   └── git commit -m "fix bug"
+├── scripts/
+│   ├── ./deploy.sh
+│   └── python backup.py
+└── .config/
+    └── vim init.vim
 
-# Re-execute a specific command
-$ rrk rerun 2
-git add .
+/var
+└── log/
+    ├── tail -f syslog
+    ├── grep ERROR *.log
+    └── journalctl -u nginx
 
-# Check session history
-$ rrk session show
-ID  TIME      DIRECTORY       COMMAND
-1   14:30:12  ~/project       git status
-2   14:30:45  ~/project       git add .
-3   14:31:02  ~/project       git commit -m "fix bug"
-4   14:32:15  ~/documents     vim README.md
+# View history for a specific directory
+$ rrk /home/user/project
+├── git status
+├── git add .
+└── git commit -m "fix bug"
 
-# Check all history
-$ rrk list
-ID  TIME      DIRECTORY       SESSION        COMMAND
-1   14:30:12  ~/project       abc123...      git status
-2   14:30:45  ~/project       abc123...      git add .
-3   14:31:02  ~/project       abc123...      git commit -m "fix bug"
-4   14:32:15  ~/documents     def456...      vim README.md
-
-# List directories with IDs
-$ rrk dir list
-ID  DIRECTORY        STATUS
-0   ~/project        (current)
-1   ~/documents
-2   /tmp
-
-# Show history by directory ID
-$ rrk dir show 1
-ID  TIME      SESSION        COMMAND
-4   14:32:15  def456...      vim README.md
+# Limit commands per directory
+$ rrk -n 2
+/home/user
+├── project/
+│   ├── git add .
+│   └── git commit -m "fix bug"
+└── scripts/
+    └── python backup.py
 ```
 
 ## Data Storage
