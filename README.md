@@ -165,8 +165,8 @@ ID  TIME      SESSION        COMMAND
 
 ## Data Storage
 
-- History data is stored in `~/rrk/history.jsonl`
-- Session information is stored in `~/rrk/current_session`
+- History data is stored in `~/.rrk/history.jsonl`
+- Session information is stored in `~/.rrk/current_session`
 - No external database required
 
 ## For Developers

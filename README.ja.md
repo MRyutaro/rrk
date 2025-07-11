@@ -160,8 +160,8 @@ ID  TIME      SESSION        COMMAND
 
 ## データ保存
 
-- 履歴データは `~/rrk/history.jsonl` に保存
-- セッション情報は `~/rrk/current_session` に保存
+- 履歴データは `~/.rrk/history.jsonl` に保存
+- セッション情報は `~/.rrk/current_session` に保存
 - 外部データベース不要
 
 ## 開発者向け

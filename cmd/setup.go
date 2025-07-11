@@ -76,7 +76,7 @@ var setupCmd = &cobra.Command{
 		}
 
 		// Write hook script to config directory
-		configDir := filepath.Join(homeDir, "rrk")
+		configDir := filepath.Join(homeDir, ".rrk")
 		if err := os.MkdirAll(configDir, 0755); err != nil {
 			fmt.Fprintf(os.Stderr, "Error creating config directory: %v\n", err)
 			os.Exit(1)

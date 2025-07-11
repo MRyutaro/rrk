@@ -53,7 +53,7 @@ var uninstallCmd = &cobra.Command{
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error getting home directory: %v\n", err)
 		} else {
-			hookFile := filepath.Join(homeDir, "rrk", "hook.sh")
+			hookFile := filepath.Join(homeDir, ".rrk", "hook.sh")
 			if err := os.Remove(hookFile); err != nil && !os.IsNotExist(err) {
 				fmt.Fprintf(os.Stderr, "Error removing hook file: %v\n", err)
 			} else {
@@ -78,7 +78,7 @@ var uninstallCmd = &cobra.Command{
 			}
 
 			if homeDir != "" {
-				rrkDir := filepath.Join(homeDir, "rrk")
+				rrkDir := filepath.Join(homeDir, ".rrk")
 				if err := os.RemoveAll(rrkDir); err != nil {
 					fmt.Fprintf(os.Stderr, "Error removing data directory: %v\n", err)
 				} else {
@@ -86,7 +86,7 @@ var uninstallCmd = &cobra.Command{
 				}
 			}
 		} else {
-			fmt.Println("💾 History data preserved in ~/rrk/")
+			fmt.Println("💾 History data preserved in ~/.rrk/")
 		}
 
 	skipDataRemoval:

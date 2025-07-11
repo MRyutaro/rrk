@@ -25,7 +25,7 @@ func New() (*Storage, error) {
 		return nil, fmt.Errorf("failed to get home directory: %w", err)
 	}
 
-	basePath := filepath.Join(homeDir, "rrk")
+	basePath := filepath.Join(homeDir, ".rrk")
 	if err := os.MkdirAll(basePath, 0755); err != nil {
 		return nil, fmt.Errorf("failed to create rrk directory: %w", err)
 	}
