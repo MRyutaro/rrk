@@ -34,9 +34,9 @@ var dirShowCmd = &cobra.Command{
 		if len(args) > 0 {
 			inputArg := args[0]
 
-			// Check if the argument is a numeric directory ID
+			// 引数が数値のディレクトリ ID かチェック
 			if dirID, parseErr := strconv.Atoi(inputArg); parseErr == nil {
-				// It's a numeric ID, resolve to directory path
+				// 数値IDの場合、ディレクトリパスに解決
 				directories, err := store.ListDirectories()
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "Error listing directories: %v\n", err)
@@ -50,7 +50,7 @@ var dirShowCmd = &cobra.Command{
 
 				dir = directories[dirID]
 			} else {
-				// It's a directory path, handle relative paths like ".."
+				// ディレクトリパスの場合、".."のような相対パスを処理
 				if !filepath.IsAbs(inputArg) {
 					cwd, err := os.Getwd()
 					if err != nil {

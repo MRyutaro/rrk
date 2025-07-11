@@ -21,7 +21,7 @@ var listCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		// Get limit from flag
+		// フラグから制限数を取得
 		limit, _ := cmd.Flags().GetInt("limit")
 
 		filter := history.EntryFilter{}

@@ -69,7 +69,7 @@ var sessionShowCmd = &cobra.Command{
 		if len(args) > 0 && args[0] != "current" {
 			sessionID = args[0]
 		} else {
-			// Get current session ID
+			// 現在のセッションIDを取得
 			sessionID, err = session.GetCurrentSessionID()
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error getting current session: %v\n", err)

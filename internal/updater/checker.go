@@ -26,14 +26,14 @@ type VersionCache struct {
 	Latest    string    `json:"latest"`
 }
 
-// compareVersions compares two semantic versions
-// Returns: 1 if v1 > v2, -1 if v1 < v2, 0 if v1 == v2
+// compareVersions 二つのセマンティックバージョンを比較
+// 返り値: v1 > v2なら1, v1 < v2なら-1, v1 == v2なら0
 func compareVersions(v1, v2 string) int {
-	// Remove 'v' prefix if present
+	// 'v'プレフィックスがある場合は削除
 	v1 = strings.TrimPrefix(v1, "v")
 	v2 = strings.TrimPrefix(v2, "v")
 
-	// Handle dev versions (always consider them older)
+	// devバージョンを処理 (常に古いものとみなす)
 	if v1 == "dev" && v2 != "dev" {
 		return -1
 	}
@@ -44,11 +44,11 @@ func compareVersions(v1, v2 string) int {
 		return 0
 	}
 
-	// Split versions into components
+	// バージョンをコンポーネントに分割
 	parts1 := strings.Split(v1, ".")
 	parts2 := strings.Split(v2, ".")
 
-	// Ensure both have at least 3 parts (major.minor.patch)
+	// 両方が少なくとも3部分 (major.minor.patch) を持つことを保証
 	for len(parts1) < 3 {
 		parts1 = append(parts1, "0")
 	}
@@ -56,12 +56,12 @@ func compareVersions(v1, v2 string) int {
 		parts2 = append(parts2, "0")
 	}
 
-	// Compare each component
+	// 各コンポーネントを比較
 	for i := 0; i < 3; i++ {
 		num1, err1 := strconv.Atoi(parts1[i])
 		num2, err2 := strconv.Atoi(parts2[i])
 
-		// If parsing fails, fall back to string comparison
+		// パーシングに失敗した場合は文字列比較にフォールバック
 		if err1 != nil || err2 != nil {
 			if parts1[i] > parts2[i] {
 				return 1
@@ -81,16 +81,16 @@ func compareVersions(v1, v2 string) int {
 	return 0
 }
 
-// CheckForUpdate checks if a newer version is available and returns update message if needed
+// CheckForUpdate 新しいバージョンが利用可能かチェックし、必要に応じて更新メッセージを返す
 func CheckForUpdate(currentVersion string) string {
-	// Skip check if version is dev or contains commit hash
+	// バージョンがdevやコミットハッシュを含む場合はチェックをスキップ
 	if strings.Contains(currentVersion, "dev") || strings.Contains(currentVersion, "-") {
 		return ""
 	}
 
 	cache := loadCache()
 
-	// Check if we need to fetch latest version
+	// 最新バージョンを取得する必要があるかチェック
 	if time.Since(cache.LastCheck) > checkInterval {
 		latest := fetchLatestVersion()
 		if latest != "" {
@@ -100,7 +100,7 @@ func CheckForUpdate(currentVersion string) string {
 		}
 	}
 
-	// Compare versions and return message if update available
+	// バージョンを比較し、更新が利用可能な場合はメッセージを返す
 	if cache.Latest != "" && compareVersions(cache.Latest, currentVersion) > 0 {
 		return fmt.Sprintf("🚀 A new version of rrk is available: %s (current: %s)\n   Run 'rrk update' to upgrade.", cache.Latest, currentVersion)
 	}
@@ -158,7 +158,7 @@ func saveCache(cache VersionCache) {
 		return
 	}
 
-	// Create directory if it doesn't exist
+	// ディレクトリが存在しない場合は作成
 	_ = os.MkdirAll(filepath.Dir(cachePath), 0755)
 
 	data, err := json.Marshal(cache)
@@ -169,7 +169,7 @@ func saveCache(cache VersionCache) {
 	_ = os.WriteFile(cachePath, data, 0644)
 }
 
-// ClearCache removes the version cache file
+// ClearCache バージョンキャッシュファイルを削除
 func ClearCache() {
 	cachePath := getCacheFilePath()
 	if cachePath != "" {

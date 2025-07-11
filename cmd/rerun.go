@@ -34,7 +34,7 @@ var rerunCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		// Change to the original directory and execute the command
+		// 元のディレクトリに移動してコマンドを実行
 		shellCmd := fmt.Sprintf("cd %s && %s", shellescape(entry.CWD), entry.Command)
 		execCmd := exec.Command("sh", "-c", shellCmd)
 		execCmd.Stdout = os.Stdout
@@ -52,8 +52,8 @@ func init() {
 	rootCmd.AddCommand(rerunCmd)
 }
 
-// shellescape escapes a string for safe use in shell commands
+// shellescape シェルコマンドで安全に使用するために文字列をエスケープ
 func shellescape(s string) string {
-	// Simple escaping - wrap in single quotes and escape any single quotes
+	// シンプルなエスケープ - シングルクォートで囲み、シングルクォートをエスケープ
 	return "'" + strings.ReplaceAll(s, "'", "'\"'\"'") + "'"
 }

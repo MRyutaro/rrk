@@ -6,9 +6,6 @@ build:
 test:
 	go test -v ./...
 
-clean:
-	rm -f rrk
-
 patch:
 	@./scripts/bump-version.sh patch
 	@if [ -z "$$GITHUB_ACTIONS" ]; then git push --follow-tags; fi

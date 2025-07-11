@@ -7,46 +7,46 @@ import (
 	"strings"
 )
 
-// GetCurrentSessionID returns the current shell session ID
+// GetCurrentSessionID 現在のシェルセッションIDを返す
 func GetCurrentSessionID() (string, error) {
-	// Try to get from environment variable first
+	// まず環境変数から取得を試行
 	if sessionID := os.Getenv("RRK_SESSION_ID"); sessionID != "" {
 		return sessionID, nil
 	}
 
-	// Fallback to shell PID + TTY
+	// シェルPID + TTYにフォールバック
 	pid := os.Getpid()
 	tty := os.Getenv("TTY")
 	if tty == "" {
-		// Try to get TTY from tty command
+		// ttyコマンドからTTYを取得しようとする
 		tty = "unknown"
 	}
 
-	// Clean tty path to make it filesystem-safe
+	// ファイルシステム安全にするためttyパスをクリーンアップ
 	tty = strings.ReplaceAll(tty, "/", "-")
 
 	return fmt.Sprintf("%d_%s", pid, tty), nil
 }
 
-// InitializeSession creates a new session ID and stores it
+// InitializeSession 新しいセッションIDを作成して保存
 func InitializeSession() (string, error) {
-	// Generate a unique session ID
+	// 一意のセッションIDを生成
 	hostname, _ := os.Hostname()
 	pid := os.Getpid()
 	timestamp := fmt.Sprintf("%d", os.Getpid())
 
 	sessionID := fmt.Sprintf("%s_%d_%s", hostname, pid, timestamp)
 
-	// Set it in environment for child processes
+	// 子プロセス用に環境変数に設定
 	os.Setenv("RRK_SESSION_ID", sessionID)
 
-	// Also write to a session file for persistence
+	// 永続化のためセッションファイルにも書き込み
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
 	}
 
-	sessionFile := filepath.Join(homeDir, "rrk", "current_session")
+	sessionFile := filepath.Join(homeDir, ".rrk", "current_session")
 	if err := os.WriteFile(sessionFile, []byte(sessionID), 0644); err != nil {
 		return "", err
 	}

@@ -11,14 +11,14 @@ import (
 	"github.com/MRyutaro/rrk/internal/history"
 )
 
-// Storage handles persistent storage of history entries
+// Storage 履歴エントリの永続化ストレージを管理
 type Storage struct {
 	basePath string
 	mu       sync.RWMutex
 	nextID   int
 }
 
-// New creates a new Storage instance
+// New 新しいStorageインスタンスを作成
 func New() (*Storage, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -35,7 +35,7 @@ func New() (*Storage, error) {
 		nextID:   1,
 	}
 
-	// Load existing entries to determine next ID
+	// 既存エントリを読み込んで次のIDを決定
 	if err := s.loadNextID(); err != nil {
 		return nil, err
 	}
@@ -43,17 +43,17 @@ func New() (*Storage, error) {
 	return s, nil
 }
 
-// historyFile returns the path to the history file
+// historyFile 履歴ファイルのパスを返す
 func (s *Storage) historyFile() string {
 	return filepath.Join(s.basePath, "history.jsonl")
 }
 
-// loadNextID loads the next available ID from existing entries
+// loadNextID 既存エントリから次の使用可能IDを読み込み
 func (s *Storage) loadNextID() error {
 	file, err := os.Open(s.historyFile())
 	if err != nil {
 		if os.IsNotExist(err) {
-			return nil // No history file yet
+			return nil // まだ履歴ファイルがない
 		}
 		return fmt.Errorf("failed to open history file: %w", err)
 	}
@@ -65,7 +65,7 @@ func (s *Storage) loadNextID() error {
 	for scanner.Scan() {
 		var entry history.Entry
 		if err := json.Unmarshal(scanner.Bytes(), &entry); err != nil {
-			continue // Skip invalid entries
+			continue // 無効なエントリをスキップ
 		}
 		if entry.ID > maxID {
 			maxID = entry.ID
@@ -76,25 +76,25 @@ func (s *Storage) loadNextID() error {
 	return scanner.Err()
 }
 
-// Save saves a new history entry
+// Save 新しい履歴エントリを保存
 func (s *Storage) Save(entry *history.Entry) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	// Assign ID if not set
+	// IDが設定されていない場合は割り当て
 	if entry.ID == 0 {
 		entry.ID = s.nextID
 		s.nextID++
 	}
 
-	// Open file in append mode
+	// ファイルを追加モードで開く
 	file, err := os.OpenFile(s.historyFile(), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		return fmt.Errorf("failed to open history file: %w", err)
 	}
 	defer file.Close()
 
-	// Write entry as JSON line
+	// エントリをJSON行として書き込み
 	encoder := json.NewEncoder(file)
 	if err := encoder.Encode(entry); err != nil {
 		return fmt.Errorf("failed to write entry: %w", err)
@@ -103,7 +103,7 @@ func (s *Storage) Save(entry *history.Entry) error {
 	return nil
 }
 
-// Load loads history entries based on filter criteria
+// Load フィルタ条件に基づいて履歴エントリを読み込み
 func (s *Storage) Load(filter history.EntryFilter) ([]history.Entry, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -111,7 +111,7 @@ func (s *Storage) Load(filter history.EntryFilter) ([]history.Entry, error) {
 	file, err := os.Open(s.historyFile())
 	if err != nil {
 		if os.IsNotExist(err) {
-			return []history.Entry{}, nil // No history yet
+			return []history.Entry{}, nil // まだ履歴がない
 		}
 		return nil, fmt.Errorf("failed to open history file: %w", err)
 	}
@@ -123,10 +123,10 @@ func (s *Storage) Load(filter history.EntryFilter) ([]history.Entry, error) {
 	for scanner.Scan() {
 		var entry history.Entry
 		if err := json.Unmarshal(scanner.Bytes(), &entry); err != nil {
-			continue // Skip invalid entries
+			continue // 無効なエントリをスキップ
 		}
 
-		// Apply filters
+		// フィルタを適用
 		if filter.SessionID != nil && entry.SessionID != *filter.SessionID {
 			continue
 		}
@@ -136,7 +136,7 @@ func (s *Storage) Load(filter history.EntryFilter) ([]history.Entry, error) {
 
 		entries = append(entries, entry)
 
-		// Apply limit
+		// 制限を適用
 		if filter.Limit > 0 && len(entries) >= filter.Limit {
 			break
 		}
@@ -149,7 +149,7 @@ func (s *Storage) Load(filter history.EntryFilter) ([]history.Entry, error) {
 	return entries, nil
 }
 
-// GetByID retrieves a specific history entry by ID
+// GetByID IDにより特定の履歴エントリを取得
 func (s *Storage) GetByID(id int) (*history.Entry, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -181,7 +181,7 @@ func (s *Storage) GetByID(id int) (*history.Entry, error) {
 	return nil, fmt.Errorf("history entry not found")
 }
 
-// ListSessions returns all unique session IDs
+// ListSessions 全ての一意なセッションIDを返す
 func (s *Storage) ListSessions() ([]string, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -218,7 +218,7 @@ func (s *Storage) ListSessions() ([]string, error) {
 	return sessions, nil
 }
 
-// ListDirectories returns all unique directories with history
+// ListDirectories 履歴を持つ全ての一意なディレクトリを返す
 func (s *Storage) ListDirectories() ([]string, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

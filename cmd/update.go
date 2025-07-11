@@ -25,13 +25,13 @@ var updateCmd = &cobra.Command{
 }
 
 func updateRrk() error {
-	// Get current executable path
+	// 現在の実行ファイルパスを取得
 	execPath, err := os.Executable()
 	if err != nil {
 		return fmt.Errorf("failed to get executable path: %v", err)
 	}
 
-	// Build download URL
+	// ダウンロードURLを構築
 	arch := runtime.GOARCH
 	osName := runtime.GOOS
 	if osName == "darwin" && arch == "arm64" {
@@ -53,7 +53,7 @@ func updateRrk() error {
 
 	fmt.Printf("Downloading latest version from %s...\n", downloadURL)
 
-	// Download the new binary
+	// 新しいバイナリをダウンロード
 	resp, err := http.Get(downloadURL)
 	if err != nil {
 		return fmt.Errorf("failed to download: %v", err)
@@ -64,7 +64,7 @@ func updateRrk() error {
 		return fmt.Errorf("download failed with status: %d", resp.StatusCode)
 	}
 
-	// Create temporary file
+	// 一時ファイルを作成
 	tmpFile := execPath + ".tmp"
 	out, err := os.Create(tmpFile)
 	if err != nil {
@@ -72,38 +72,38 @@ func updateRrk() error {
 	}
 	defer out.Close()
 
-	// Copy downloaded content to temp file
+	// ダウンロードしたコンテンツを一時ファイルにコピー
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
 		os.Remove(tmpFile)
 		return fmt.Errorf("failed to write temp file: %v", err)
 	}
 
-	// Make executable
+	// 実行可能にする
 	if err := os.Chmod(tmpFile, 0755); err != nil {
 		os.Remove(tmpFile)
 		return fmt.Errorf("failed to make executable: %v", err)
 	}
 
-	// Backup current binary
+	// 現在のバイナリをバックアップ
 	backupPath := execPath + ".backup"
 	if err := os.Rename(execPath, backupPath); err != nil {
 		os.Remove(tmpFile)
 		return fmt.Errorf("failed to backup current binary: %v", err)
 	}
 
-	// Replace with new binary
+	// 新しいバイナリで置き換え
 	if err := os.Rename(tmpFile, execPath); err != nil {
-		// Restore backup if replacement fails
+		// 置き換えに失敗した場合はバックアップを復元
 		_ = os.Rename(backupPath, execPath)
 		_ = os.Remove(tmpFile)
 		return fmt.Errorf("failed to replace binary: %v", err)
 	}
 
-	// Remove backup
+	// バックアップを削除
 	_ = os.Remove(backupPath)
 
-	// Verify the new binary works
+	// 新しいバイナリが動作するか検証
 	cmd := exec.Command(execPath, "--version")
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("new binary verification failed: %v", err)
@@ -112,10 +112,10 @@ func updateRrk() error {
 	fmt.Println("✅ rrk has been successfully updated!")
 	fmt.Printf("Updated binary location: %s\n", execPath)
 
-	// Clear version cache to avoid showing update messages for the new version
+	// 新バージョンの更新メッセージ表示を回避するためバージョンキャッシュをクリア
 	updater.ClearCache()
 
-	// Show new version
+	// 新バージョンを表示
 	versionCmd := exec.Command(execPath, "--version")
 	versionCmd.Stdout = os.Stdout
 	_ = versionCmd.Run()

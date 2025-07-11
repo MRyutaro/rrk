@@ -1,6 +1,11 @@
 # rrk
 
+[![GitHub release](https://img.shields.io/github/release/MRyutaro/rrk.svg)](https://github.com/MRyutaro/rrk/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 **rrk**（rireki）は、Go製の単一実行ファイルCLIツールで、bash/zshのシェル履歴を**セッション**・**ディレクトリ**単位で論理的にグループ化し、過去のコマンドを「**そのまま再実行可能**」な形で抽出・管理できる履歴管理ツールです。
+
+> 📖 **English Documentation** - [README.md](./README.md)
 
 ## 特徴
 
@@ -9,21 +14,25 @@
 - 🔄 **ワンコマンド再実行** - `rrk rerun <ID>`
 - 🚀 **単一実行ファイル** - 依存関係なし
 - 💾 **軽量** - データベース不要のファイルベース保存
-- 🐚 **シェル統合** - bash/zsh対応
+- 🐚 **シェル統合** - bash/zsh対応（自動セットアップ）
+- 🔄 **自動アップデート** - GitHub Releasesとの統合アップデート機能
+- 🗑️ **簡単削除** - データ保存オプション付きクリーンアンインストール
 
 ## インストール
 
-### クイックインストール（推奨）
+### リリースからダウンロード（推奨）
+
+1. [GitHub Releases](https://github.com/MRyutaro/rrk/releases)からシステムに適したバイナリをダウンロード
+2. 実行可能にしてPATHに配置：
 
 ```bash
-curl -LsSf https://raw.githubusercontent.com/MRyutaro/rrk/main/install.sh | sh
-```
+# Linux/macOSの例
+chmod +x rrk-<OS>-<ARCH>
+sudo mv rrk-<OS>-<ARCH> /usr/local/bin/rrk
 
-このスクリプトは以下を自動的に実行します：
-- システムに適したバイナリをダウンロード
-- `~/.local/bin`（または`$INSTALL_DIR`）にインストール
-- シェル統合（bash/zsh）を自動設定
-- 必要に応じてインストールディレクトリをPATHに追加
+# シェル統合をセットアップ
+rrk setup
+```
 
 ### ソースからビルド
 
@@ -33,9 +42,22 @@ cd rrk
 make build
 sudo mv rrk /usr/local/bin/
 
-# ソースからビルドした後は、シェル統合を設定：
+# シェル統合をセットアップ
 rrk setup
 ```
+
+### シェル統合セットアップ
+
+インストール後、自動履歴記録を有効にするためにセットアップコマンドを実行：
+
+```bash
+rrk setup
+```
+
+これにより以下が実行されます：
+- シェル（bash/zsh）の自動検出
+- シェル設定（`~/.bashrc`または`~/.zshrc`）への統合フック追加
+- `~/.rrk/`内の必要な設定ファイル作成
 
 ## 使い方
 
@@ -54,6 +76,7 @@ rrk list -n 20
 ```bash
 # セッション一覧
 rrk session list
+rrk s list
 
 # 現在のセッション履歴を表示
 rrk session show
@@ -75,6 +98,7 @@ rrk dir show /path/to/directory
 
 # 履歴があるディレクトリ一覧（番号付きID表示）
 rrk dir list
+rrk d list
 
 # IDでディレクトリ履歴を表示
 rrk dir show <ID>
@@ -98,22 +122,35 @@ rrk rerun 1
 rrk update
 ```
 
+updateコマンドは以下を実行します：
+- GitHub Releasesから最新バージョンをダウンロード
+- 現在のバイナリを置き換え
+- インストールを検証
+- アップデート通知キャッシュをクリア
+
 ### バージョン確認
 
 ```bash
-# バージョン情報を表示（GitHubの最新リリース情報も表示）
+# バージョン情報を表示（アップデート通知も含む）
+rrk version
 rrk -v
 rrk --version
 ```
 
-> **注意**: バージョン比較は開発ビルドを正しく処理し、`rrk update`実行後は更新通知が自動的にクリアされます。
-
 ### アンインストール
 
 ```bash
-# シェル統合のみ削除
+# シェル統合と全データを削除
 rrk uninstall
+
+# 確認なしでシェル統合と全データを削除
+rrk uninstall -y
 ```
+
+uninstallコマンドは以下を実行します：
+- `~/.bashrc`/`~/.zshrc`からシェル統合を削除
+- `~/.rrk/`から全rrkデータを削除
+- バイナリ削除の手順を表示
 
 ## 使用例
 
@@ -160,18 +197,55 @@ ID  TIME      SESSION        COMMAND
 
 ## データ保存
 
-- 履歴データは `~/.rrk/history.jsonl` に保存
+- 履歴データは `~/.rrk/history.jsonl`（JSONL形式）に保存
 - セッション情報は `~/.rrk/current_session` に保存
+- シェル統合スクリプトは `~/.rrk/hook.sh` に保存
+- バージョンキャッシュは `~/.rrk/.rrk_version_cache` に保存
 - 外部データベース不要
+
+## 高度な使用方法
+
+### 手動シェル統合
+
+手動セットアップやカスタム設定が必要な場合：
+
+```bash
+# シェル統合スクリプトを生成
+rrk hook init bash > ~/.rrk_integration.sh
+rrk hook init zsh > ~/.rrk_integration.sh
+
+# シェル設定でソース
+echo "source ~/.rrk_integration.sh" >> ~/.bashrc  # または ~/.zshrc
+```
+
+### 手動履歴記録
+
+```bash
+# コマンドを手動で記録
+rrk hook record "your command here"
+
+# 新しいセッションを初期化
+rrk hook session-init
+```
+
+## CI/CD統合
+
+rrkには自動リリース管理が含まれています：
+
+- **プルリクエストマージ**: 自動的にパッチリリースを作成
+- **手動タグ付け**: 全プラットフォームでリリースビルドをトリガー
+- **マルチプラットフォームビルド**: Linux、macOS、Windows（AMD64/ARM64）
+- **自動アップデート**: 内蔵のアップデート通知とインストール
 
 ## 開発者向け
 
-詳細は [`docs/DEVELOPERS.md`](./docs/DEVELOPERS.md) を参照してください。
+詳細は [`docs/DEVELOPERS.md`](./docs/DEVELOPERS.md) と [`docs/REQ.md`](./docs/REQ.md) を参照してください。
 
 ### コントリビューション
 
 - `main`ブランチへのプルリクエストのマージは自動的にパッチバージョンリリースをトリガーします
 - CI/CDパイプラインがバージョン管理とGitHubリリースを自動で処理します
+- ローカルでのバージョン管理には `make patch`、`make minor`、`make major` を使用
 
 ## ライセンス
 

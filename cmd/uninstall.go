@@ -12,17 +12,16 @@ import (
 var uninstallCmd = &cobra.Command{
 	Use:   "uninstall",
 	Short: "Uninstall rrk and remove shell integration",
-	Long:  `Remove rrk shell integration and optionally delete history data.`,
+	Long:  `Remove rrk shell integration and delete all history data.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Uninstalling rrk...")
 
 		// Get flags
-		removeData, _ := cmd.Flags().GetBool("remove-data")
 		autoConfirm, _ := cmd.Flags().GetBool("yes")
 
 		// Get confirmation unless --yes flag is used
 		if !autoConfirm {
-			fmt.Print("This will remove rrk shell integration. Continue? [y/N]: ")
+			fmt.Print("This will remove rrk shell integration and delete all history data. Continue? [y/N]: ")
 			var response string
 			if _, err := fmt.Scanln(&response); err != nil {
 				// Treat scan error as "no" response
@@ -61,35 +60,15 @@ var uninstallCmd = &cobra.Command{
 			}
 		}
 
-		// Optionally remove data
-		if removeData {
-			if !autoConfirm {
-				fmt.Print("This will permanently delete all rrk history data. Continue? [y/N]: ")
-				var response string
-				if _, err := fmt.Scanln(&response); err != nil {
-					// Treat scan error as "no" response
-					fmt.Println("Data removal cancelled.")
-					goto skipDataRemoval
-				}
-				if response != "y" && response != "Y" && response != "yes" {
-					fmt.Println("Data removal cancelled.")
-					goto skipDataRemoval
-				}
+		// Remove all rrk data
+		if homeDir != "" {
+			rrkDir := filepath.Join(homeDir, ".rrk")
+			if err := os.RemoveAll(rrkDir); err != nil {
+				fmt.Fprintf(os.Stderr, "Error removing data directory: %v\n", err)
+			} else {
+				fmt.Println("✅ Removed all rrk data")
 			}
-
-			if homeDir != "" {
-				rrkDir := filepath.Join(homeDir, ".rrk")
-				if err := os.RemoveAll(rrkDir); err != nil {
-					fmt.Fprintf(os.Stderr, "Error removing data directory: %v\n", err)
-				} else {
-					fmt.Println("✅ Removed all rrk data")
-				}
-			}
-		} else {
-			fmt.Println("💾 History data preserved in ~/.rrk/")
 		}
-
-	skipDataRemoval:
 
 		// Instructions for removing binary
 		fmt.Println("\n📦 To complete uninstallation, remove the rrk binary:")
@@ -118,13 +97,13 @@ func removeShellIntegration(shell string) error {
 		return fmt.Errorf("unsupported shell: %s", shell)
 	}
 
-	// Read current config
+	// 現在の設定を読み込み
 	content, err := os.ReadFile(configFile)
 	if err != nil {
 		return err
 	}
 
-	// Remove rrk integration lines
+	// rrk統合行を削除
 	lines := strings.Split(string(content), "\n")
 	var newLines []string
 	skipNext := false
@@ -132,11 +111,11 @@ func removeShellIntegration(shell string) error {
 	for i, line := range lines {
 		trimmed := strings.TrimSpace(line)
 
-		// Skip rrk-related lines
+		// rrk関連行をスキップ
 		if strings.Contains(trimmed, "rrk shell integration") ||
 			strings.Contains(trimmed, "rrk hook init") ||
 			(strings.HasPrefix(trimmed, "source") && strings.Contains(trimmed, "rrk/hook.sh")) {
-			// Also skip the next line if it's just a comment
+			// コメントだけの場合は次の行もスキップ
 			if i+1 < len(lines) && strings.TrimSpace(lines[i+1]) == "" {
 				skipNext = true
 			}
@@ -151,7 +130,7 @@ func removeShellIntegration(shell string) error {
 		newLines = append(newLines, line)
 	}
 
-	// Write back the cleaned config
+	// クリーンアップした設定を書き戻し
 	newContent := strings.Join(newLines, "\n")
 	return os.WriteFile(configFile, []byte(newContent), 0644)
 }
@@ -159,5 +138,4 @@ func removeShellIntegration(shell string) error {
 func init() {
 	rootCmd.AddCommand(uninstallCmd)
 	uninstallCmd.Flags().BoolP("yes", "y", false, "Automatically confirm without prompting")
-	uninstallCmd.Flags().Bool("remove-data", false, "Also remove all rrk history data")
 }

@@ -17,7 +17,7 @@ by session and directory, making past commands easily reusable.`,
 }
 
 func Execute() {
-	// Check for updates before executing any command
+	// コマンド実行前にアップデートをチェック
 	if updateMsg := updater.CheckForUpdate(Version); updateMsg != "" {
 		fmt.Fprintln(os.Stderr, updateMsg)
 		fmt.Fprintln(os.Stderr)

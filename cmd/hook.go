@@ -40,7 +40,7 @@ var hookRecordCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		// Join all arguments to form the complete command
+		// 全ての引数を結合して完全なコマンドを作成
 		command := ""
 		for i, arg := range args {
 			if i > 0 {
@@ -49,7 +49,7 @@ var hookRecordCmd = &cobra.Command{
 			command += arg
 		}
 
-		// Skip recording cd commands as per requirements
+		// 要件に従ってcdコマンドの記録をスキップ
 		if len(command) >= 2 && command[:2] == "cd" {
 			return
 		}

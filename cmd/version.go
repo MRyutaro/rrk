@@ -8,20 +8,20 @@ import (
 	"time"
 )
 
-// Version information (set by build flags)
+// Version バージョン情報 (ビルドフラグで設定)
 var (
 	Version = "dev"
 	Commit  = "unknown"
 	Date    = "unknown"
 )
 
-// GitHubRelease represents a GitHub release
+// GitHubRelease GitHubリリースを表す
 type GitHubRelease struct {
 	TagName string `json:"tag_name"`
 	Name    string `json:"name"`
 }
 
-// GetLatestVersion fetches the latest version from GitHub
+// GetLatestVersion GitHubから最新バージョンを取得
 func GetLatestVersion() (string, error) {
 	client := &http.Client{
 		Timeout: 5 * time.Second,
@@ -50,10 +50,10 @@ func GetLatestVersion() (string, error) {
 	return release.TagName, nil
 }
 
-// GetVersionInfo returns formatted version information
+// GetVersionInfo フォーマットされたバージョン情報を返す
 func GetVersionInfo() string {
 	if Version == "dev" {
-		// Try to get latest version from GitHub
+		// GitHubから最新バージョンを取得しようとする
 		if latestVersion, err := GetLatestVersion(); err == nil {
 			return fmt.Sprintf("rrk %s (development build)\nLatest release: %s", Version, latestVersion)
 		}

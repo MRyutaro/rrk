@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// Entry represents a single history entry
+// Entry 単一の履歴エントリを表す
 type Entry struct {
 	ID        int       `json:"id"`
 	SessionID string    `json:"session_id"`
@@ -13,7 +13,7 @@ type Entry struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// EntryFilter contains criteria for filtering history entries
+// EntryFilter 履歴エントリをフィルタリングするための条件を含む
 type EntryFilter struct {
 	SessionID *string
 	CWD       *string

@@ -14,21 +14,25 @@
 - 🔄 **One-command re-execution** - `rrk rerun <ID>`
 - 🚀 **Single binary** - no dependencies
 - 💾 **Lightweight** - file-based storage, no database required
-- 🐚 **Shell integration** - supports bash/zsh
+- 🐚 **Shell integration** - supports bash/zsh with automatic setup
+- 🔄 **Auto-update** - built-in update mechanism with GitHub releases
+- 🗑️ **Easy removal** - clean uninstall with data preservation options
 
 ## Installation
 
-### Quick Install (Recommended)
+### Download from Releases (Recommended)
+
+1. Download the appropriate binary for your system from [GitHub Releases](https://github.com/MRyutaro/rrk/releases)
+2. Make it executable and move to your PATH:
 
 ```bash
-curl -LsSf https://raw.githubusercontent.com/MRyutaro/rrk/main/install.sh | sh
-```
+# Example for Linux/macOS
+chmod +x rrk-<OS>-<ARCH>
+sudo mv rrk-<OS>-<ARCH> /usr/local/bin/rrk
 
-This script will:
-- Download the appropriate binary for your system
-- Install it to `~/.local/bin` (or `$INSTALL_DIR` if set)
-- Automatically set up shell integration (bash/zsh)
-- Add the installation directory to your PATH if needed
+# Set up shell integration
+rrk setup
+```
 
 ### Build from Source
 
@@ -38,9 +42,22 @@ cd rrk
 make build
 sudo mv rrk /usr/local/bin/
 
-# After building from source, set up shell integration:
+# Set up shell integration
 rrk setup
 ```
+
+### Shell Integration Setup
+
+After installation, run the setup command to enable automatic history recording:
+
+```bash
+rrk setup
+```
+
+This will:
+- Detect your shell (bash/zsh)
+- Add integration hooks to your shell configuration (`~/.bashrc` or `~/.zshrc`)
+- Create the necessary configuration files in `~/.rrk/`
 
 ## Usage
 
@@ -59,6 +76,7 @@ rrk list -n 20
 ```bash
 # List all sessions
 rrk session list
+rrk s list
 
 # Show current session history
 rrk session show
@@ -80,6 +98,7 @@ rrk dir show /path/to/directory
 
 # List directories with history (with numeric IDs)
 rrk dir list
+rrk d list
 
 # Show directory history by ID
 rrk dir show <ID>
@@ -103,22 +122,35 @@ rrk rerun 1
 rrk update
 ```
 
+The update command will:
+- Download the latest version from GitHub releases
+- Replace the current binary
+- Verify the installation
+- Clear update notification cache
+
 ### Version Information
 
 ```bash
-# Show version (includes latest GitHub release info)
+# Show version (includes update notification if available)
+rrk version
 rrk -v
 rrk --version
 ```
 
-> **Note**: Version comparison correctly handles development builds and update notifications are automatically cleared after running `rrk update`.
-
 ### Uninstall
 
 ```bash
-# Remove shell integration only
+# Remove shell integration and all data
 rrk uninstall
+
+# Remove shell integration and all data without confirmation
+rrk uninstall -y
 ```
+
+The uninstall command will:
+- Remove shell integration from `~/.bashrc`/`~/.zshrc`
+- Delete all rrk data from `~/.rrk/`
+- Provide instructions for removing the binary
 
 ## Example Usage
 
@@ -165,18 +197,55 @@ ID  TIME      SESSION        COMMAND
 
 ## Data Storage
 
-- History data is stored in `~/.rrk/history.jsonl`
+- History data is stored in `~/.rrk/history.jsonl` (JSONL format)
 - Session information is stored in `~/.rrk/current_session`
+- Shell integration script is stored in `~/.rrk/hook.sh`
+- Version cache is stored in `~/.rrk/.rrk_version_cache`
 - No external database required
+
+## Advanced Usage
+
+### Manual Shell Integration
+
+If you prefer manual setup or need custom configuration:
+
+```bash
+# Generate shell integration script
+rrk hook init bash > ~/.rrk_integration.sh
+rrk hook init zsh > ~/.rrk_integration.sh
+
+# Source it in your shell configuration
+echo "source ~/.rrk_integration.sh" >> ~/.bashrc  # or ~/.zshrc
+```
+
+### Manual History Recording
+
+```bash
+# Record a command manually
+rrk hook record "your command here"
+
+# Initialize a new session
+rrk hook session-init
+```
+
+## CI/CD Integration
+
+rrk includes automated release management:
+
+- **Pull Request Merging**: Automatically creates patch releases
+- **Manual Tagging**: Triggers release builds for all platforms
+- **Multi-platform Builds**: Linux, macOS, Windows (AMD64/ARM64)
+- **Automatic Updates**: Built-in update notification and installation
 
 ## For Developers
 
-See [`docs/DEVELOPERS.md`](./docs/DEVELOPERS.md) for detailed information.
+See [`docs/DEVELOPERS.md`](./docs/DEVELOPERS.md) and [`docs/REQ.md`](./docs/REQ.md) for detailed information.
 
 ### Contributing
 
 - Pull requests merged to the `main` branch automatically trigger a patch version release
 - The CI/CD pipeline handles version bumping and GitHub releases automatically
+- Use `make patch`, `make minor`, or `make major` for local version management
 
 ## License
 
