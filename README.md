@@ -20,19 +20,17 @@
 
 ## Installation
 
-### Download from Releases (Recommended)
-
-1. Download the appropriate binary for your system from [GitHub Releases](https://github.com/MRyutaro/rrk/releases)
-2. Make it executable and move to your PATH:
+### Quick Install (Recommended)
 
 ```bash
-# Example for Linux/macOS
-chmod +x rrk-<OS>-<ARCH>
-sudo mv rrk-<OS>-<ARCH> /usr/local/bin/rrk
-
-# Set up shell integration
-rrk setup
+curl -LsSf https://raw.githubusercontent.com/MRyutaro/rrk/main/install.sh | sh
 ```
+
+This script will:
+- Download the appropriate binary for your system
+- Install it to `~/.local/bin` (or `$INSTALL_DIR` if set)
+- Automatically set up shell integration (bash/zsh)
+- Add the installation directory to your PATH if needed
 
 ### Build from Source
 
@@ -42,22 +40,9 @@ cd rrk
 make build
 sudo mv rrk /usr/local/bin/
 
-# Set up shell integration
+# After building from source, set up shell integration:
 rrk setup
 ```
-
-### Shell Integration Setup
-
-After installation, run the setup command to enable automatic history recording:
-
-```bash
-rrk setup
-```
-
-This will:
-- Detect your shell (bash/zsh)
-- Add integration hooks to your shell configuration (`~/.bashrc` or `~/.zshrc`)
-- Create the necessary configuration files in `~/.rrk/`
 
 ## Usage
 

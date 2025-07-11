@@ -20,19 +20,17 @@
 
 ## インストール
 
-### リリースからダウンロード（推奨）
-
-1. [GitHub Releases](https://github.com/MRyutaro/rrk/releases)からシステムに適したバイナリをダウンロード
-2. 実行可能にしてPATHに配置：
+### クイックインストール（推奨）
 
 ```bash
-# Linux/macOSの例
-chmod +x rrk-<OS>-<ARCH>
-sudo mv rrk-<OS>-<ARCH> /usr/local/bin/rrk
-
-# シェル統合をセットアップ
-rrk setup
+curl -LsSf https://raw.githubusercontent.com/MRyutaro/rrk/main/install.sh | sh
 ```
+
+このスクリプトは以下を自動的に実行します：
+- システムに適したバイナリをダウンロード
+- `~/.local/bin`（または`$INSTALL_DIR`）にインストール
+- シェル統合（bash/zsh）を自動設定
+- 必要に応じてインストールディレクトリをPATHに追加
 
 ### ソースからビルド
 
@@ -42,22 +40,9 @@ cd rrk
 make build
 sudo mv rrk /usr/local/bin/
 
-# シェル統合をセットアップ
+# ソースからビルドした後は、シェル統合を設定：
 rrk setup
 ```
-
-### シェル統合セットアップ
-
-インストール後、自動履歴記録を有効にするためにセットアップコマンドを実行：
-
-```bash
-rrk setup
-```
-
-これにより以下が実行されます：
-- シェル（bash/zsh）の自動検出
-- シェル設定（`~/.bashrc`または`~/.zshrc`）への統合フック追加
-- `~/.rrk/`内の必要な設定ファイル作成
 
 ## 使い方
 
