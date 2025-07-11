@@ -27,3 +27,7 @@ jobs:
       run: |
         chmod +x scripts/bump-version.sh
         make patch
+        
+    - name: Push changes and tags
+      run: |
+        git push origin main --follow-tags

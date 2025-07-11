@@ -11,15 +11,15 @@ clean:
 
 patch:
 	@./scripts/bump-version.sh patch
-	@git push --follow-tags
+	@if [ -z "$$GITHUB_ACTIONS" ]; then git push --follow-tags; fi
 
 minor:
 	@./scripts/bump-version.sh minor
-	@git push --follow-tags
+	@if [ -z "$$GITHUB_ACTIONS" ]; then git push --follow-tags; fi
 
 major:
 	@./scripts/bump-version.sh major
-	@git push --follow-tags
+	@if [ -z "$$GITHUB_ACTIONS" ]; then git push --follow-tags; fi
 
 version:
 	@git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0"
