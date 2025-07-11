@@ -1,9 +1,12 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+        description: 'Tag name to release'
 
 permissions:
   contents: write
@@ -21,7 +24,7 @@ jobs:
 
     - name: Build binaries
       run: |
-        VERSION=${GITHUB_REF#refs/tags/}
+        VERSION=${{ inputs.tag }}
         LDFLAGS="-X github.com/MRyutaro/rrk/cmd.Version=${VERSION#v}"
         # Linux AMD64
         GOOS=linux GOARCH=amd64 go build -ldflags="$LDFLAGS" -o rrk-linux-amd64
@@ -42,8 +45,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: ${{ inputs.tag }}
+        release_name: Release ${{ inputs.tag }}
         draft: false
         prerelease: false
 
