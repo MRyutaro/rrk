@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      tag: ${{ steps.get_tag.outputs.tag }}
     steps:
     - uses: actions/checkout@v4
       with:
@@ -27,7 +29,19 @@ jobs:
       run: |
         chmod +x scripts/bump-version.sh
         make patch
-        
+
+    - name: Get new tag
+      id: get_tag
+      run: |
+        TAG=$(git describe --tags --abbrev=0)
+        echo "tag=$TAG" >> $GITHUB_OUTPUT
+      
     - name: Push changes and tags
       run: |
         git push origin main --follow-tags
+
+  release:
+    needs: auto-patch
+    uses: ./.github/workflows/release.yml
+    with:
+      tag: ${{ needs.auto-patch.outputs.tag }}
