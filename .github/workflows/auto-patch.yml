@@ -43,5 +43,7 @@ jobs:
   release:
     needs: auto-patch
     uses: ./.github/workflows/release.yml
+    permissions:
+      contents: write
     with:
       tag: ${{ needs.auto-patch.outputs.tag }}
