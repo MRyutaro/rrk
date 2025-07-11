@@ -118,12 +118,6 @@ rrk --version
 ```bash
 # Remove shell integration only
 rrk uninstall
-
-# Remove data as well
-rrk uninstall --remove-data
-
-# Auto-confirm uninstall
-rrk uninstall -y --remove-data
 ```
 
 ## Example Usage

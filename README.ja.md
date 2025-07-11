@@ -113,12 +113,6 @@ rrk --version
 ```bash
 # シェル統合のみ削除
 rrk uninstall
-
-# データも削除
-rrk uninstall --remove-data
-
-# 自動確認でアンインストール
-rrk uninstall -y --remove-data
 ```
 
 ## 使用例
